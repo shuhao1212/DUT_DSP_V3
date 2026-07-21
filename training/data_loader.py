@@ -26,7 +26,7 @@ FREQ_NUM = 257        # FFT_LEN/2 + 1
 MELS_NUM = 40         # DSP: PROJECT3_MELS_NUM
 NUM_FRAMES = 101      # DSP: PROJECT3_MODEL_FRAMES
 
-COMMAND_WORDS = ['down', 'go', 'left', 'no', 'off', 'on',
+COMMAND_WORDS = ['marvin', 'down', 'go', 'left', 'no', 'off', 'on',
                  'right', 'stop', 'up', 'yes']
 LABELS = ['_silence_', '_unknown_'] + COMMAND_WORDS
 LABEL_TO_ID = {lbl: i for i, lbl in enumerate(LABELS)}

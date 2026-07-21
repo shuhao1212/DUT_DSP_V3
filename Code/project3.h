@@ -873,7 +873,7 @@ static void Project3_HandleSpeechEnd(PROJECT3_CONTEXT *ctx)
         // 强制标记 last_main_text 为空，确保下次一定重绘
         ctx->last_main_text[0] = '\0';
         Project3_SetAppState(ctx, PROJECT3_APP_LISTENING);
-        Project3_SetUiText(ctx, "I am listening...", "", "");
+        Project3_SetUiText(ctx, "Listening...", "", "");
         return;
     }
 
@@ -971,12 +971,17 @@ static void Project3_HandleKeys(PROJECT3_CONTEXT *ctx)
 {
     if (FLAG_KEY1) {
         FLAG_KEY1 = 0;
-        // KEY1: 清除当前结果，回到 listening
+        /* KEY1: 切换监听开关 */
+        ctx->pass_through_enable = !ctx->pass_through_enable;
         Project3_ResetUtterance(ctx);
         ctx->input_gate_blocks = 0;
         ctx->ui_hold_blocks = 0;
+        ctx->last_main_text[0] = '\0';
         Project3_SetAppState(ctx, PROJECT3_APP_LISTENING);
-        Project3_SetUiText(ctx, "I am listening...", "", "");
+        if (ctx->pass_through_enable)
+            Project3_SetUiText(ctx, "Listening...", "", "");
+        else
+            Project3_SetUiText(ctx, "Press KEY1...", "", "");
     }
     if (FLAG_KEY2) {
         FLAG_KEY2 = 0;
@@ -1053,6 +1058,11 @@ static void Project3_ProcessAudioBlock(PROJECT3_CONTEXT *ctx, short *block, unsi
         return;
     }
 
+    /* KEY1 未按下时跳过语音处理 */
+    if (!ctx->pass_through_enable) {
+        return;
+    }
+
     for (offset = 0; offset + PROJECT3_VAD_FRAME_LEN <= block_samples; offset += PROJECT3_VAD_HOP) {
         float frame_energy = Project3_ComputeFrameEnergy(&block[offset], PROJECT3_VAD_FRAME_LEN);
         unsigned char started = Project3_UpdateVad(ctx, frame_energy);
@@ -1092,7 +1102,7 @@ static void Project3_ModelInit(PROJECT3_CONTEXT *ctx)
 {
     ctx->model_state = PROJECT3_MODEL_READY;
     Project3_SetAppState(ctx, PROJECT3_APP_LISTENING);
-    Project3_SetUiText(ctx, "I am listening...", "", "");
+    Project3_SetUiText(ctx, "Press KEY1...", "", "");
 }
 
 static PROJECT3_INFER_RESULT Project3_RunInference(PROJECT3_CONTEXT *ctx, const PROJECT3_UTTERANCE_BUFFER *utter)
@@ -1128,7 +1138,7 @@ static void Project3_ServiceUiHold(PROJECT3_CONTEXT *ctx)
             // 强制标记 last_main_text 为空，确保下次一定重绘
             ctx->last_main_text[0] = '\0';
             Project3_SetAppState(ctx, PROJECT3_APP_LISTENING);
-            Project3_SetUiText(ctx, "I am listening...", "", "");
+            Project3_SetUiText(ctx, "Listening...", "", "");
         }
     }
 }

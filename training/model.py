@@ -172,13 +172,13 @@ def count_parameters(model: nn.Module) -> dict:
 
 
 if __name__ == "__main__":
-    model = BcResNet(n_classes=12)
+    model = BcResNet(n_classes=13)
     print(f"Parameters: {count_parameters(model)}")
     x = torch.randn(1, 1, 40, 101)
     with torch.no_grad():
         y = model(x)
     print(f"Input:  {x.shape}")
-    print(f"Output: {y.shape} (expected: [1, 12])")
+    print(f"Output: {y.shape} (expected: [1, 13])")
 
     # 逐层打印 shape
     print("\n--- Layer shapes ---")
